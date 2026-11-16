@@ -1,10 +1,17 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  generateSecurePassword,
+  getOrCreateAdminUser,
+  sendCredentialsEmail,
+  DEFAULT_DASHBOARD_URL,
+} from "../_shared/credentials.ts";
 
 declare const Deno: any;
 
 const PAYSTACK_SECRET = Deno.env.get("PAYSTACK_SECRET_KEY")!;
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-const SITE = Deno.env.get("SITE_URL")!;
+const SITE = Deno.env.get("SITE_URL") || "";
+const DASHBOARD_URL = Deno.env.get("DASHBOARD_URL") || DEFAULT_DASHBOARD_URL;
 
 async function verifySignature(rawBody: string, signature: string | null): Promise<boolean> {
   if (!signature) return false;
@@ -93,13 +100,27 @@ Deno.serve(async (req) => {
       return new Response(error.message, { status: 500 });
     }
 
-    // Invite the buyer as company IT admin (or generate magic link if already invited)
-    let userId = (await db.auth.admin.inviteUserByEmail(email, { redirectTo: `${SITE}/dashboard.html` })).data.user?.id;
-    if (!userId) {
-      userId = (await db.auth.admin.generateLink({ type: "magiclink", email })).data.user?.id;
-    }
-    if (userId) {
-      await db.from("company_admins").upsert({ user_id: userId, company_id: co.id });
+    // Provision admin user account with temporary password & send welcome credentials email
+    const tempPassword = generateSecurePassword();
+    try {
+      const userId = await getOrCreateAdminUser(db, email, tempPassword, companyName);
+      if (userId) {
+        await db.from("company_admins").upsert(
+          { user_id: userId, company_id: co.id },
+          { onConflict: "user_id,company_id" }
+        );
+      }
+
+      // Send the email with the password to login: dashboard.extension.zenlow.co
+      await sendCredentialsEmail({
+        to: email,
+        password: tempPassword,
+        companyName,
+        seats,
+        dashboardUrl: DASHBOARD_URL,
+      });
+    } catch (provisionErr: any) {
+      console.error("Error provisioning user or sending email:", provisionErr);
     }
   }
 

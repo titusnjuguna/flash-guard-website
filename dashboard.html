@@ -1,13 +1,44 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FlashGuard admin</title><link rel="stylesheet" href="site.css"></head>
+<title>FlashGuard Admin</title><link rel="stylesheet" href="site.css"></head>
 <body><div class="wrap">
-<nav><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M16 3 6 7v8c0 6.2 4.2 11.3 10 14 5.8-2.7 10-7.8 10-14V7L16 3Z" fill="#f59e0b"/><path d="m17.5 9-5 8h3.5l-1.5 6 5.5-8H16.5l1-6Z" fill="#0f172a"/></svg>FlashGuard <span style="font-weight:400;color:var(--muted);font-size:15px;margin-left:4px">admin</span></a><button class="btn ghost" id="out" hidden>Sign out</button></nav>
+<nav><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M16 3 6 7v8c0 6.2 4.2 11.3 10 14 5.8-2.7 10-7.8 10-14V7L16 3Z" fill="#f59e0b"/><path d="m17.5 9-5 8h3.5l-1.5 6 5.5-8H16.5l1-6Z" fill="#0f172a"/></svg>FlashGuard <span style="font-weight:400;color:var(--text-muted);font-size:15px;margin-left:4px">Admin</span></a></nav>
 
-<section id="login" hidden style="max-width:420px"><h2>Admin sign in</h2>
-<p class="lead" style="font-size:16px">Enter the email you used at checkout. We will send a sign-in link.</p>
-<input id="email" type="email" autocomplete="email" placeholder="you@company.com"><p></p>
-<button class="btn" id="send">Email me a link</button><p class="msg" id="lmsg" role="status"></p></section>
+<section id="login" hidden style="max-width:440px;margin:32px auto 0">
+  <!-- <h2>Sign in</h2> -->
+  <!-- <p class="lead" id="loginDesc" style="font-size:15px;color:var(--text-secondary);margin:8px 0 20px">Sign in to your admin console</p> -->
+
+  <button type="button" class="btn google" id="googleBtn">
+    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.859-3.0477.859-2.344 0-4.3282-1.5831-5.036-3.7104H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z" fill="#34A853"/>
+      <path d="M3.964 10.71c-.18-.54-.2823-1.1168-.2823-1.71s.1023-1.17.2823-1.71V4.9582H.9573C.3477 6.1732 0 7.5477 0 9s.3477 2.8268.9573 4.0418L3.964 10.71z" fill="#FBBC05"/>
+      <path d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.9245 11.4259 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.964 7.29C4.6718 5.1627 6.656 3.5795 9 3.5795z" fill="#EA4335"/>
+    </svg>
+    <span>Sign in with Google</span>
+  </button>
+
+  <div class="auth-divider">or continue with email</div>
+
+  <form id="loginForm" onsubmit="return false;" style="display:flex;flex-direction:column;gap:14px">
+    <div>
+      <label for="email" style="display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">Work email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+    </div>
+    <div id="pwdGroup">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label for="password" style="font-size:13px;font-weight:600;color:var(--text-secondary)">Password</label>
+        <a href="#" id="forgotPass" style="font-size:12.5px;color:var(--amber-text);text-decoration:none">Forgot password?</a>
+      </div>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Password from your welcome email">
+    </div>
+    <button class="btn primary" id="loginBtn" type="submit" style="width:100%;margin-top:6px">Sign in</button>
+    <div style="text-align:center;margin-top:4px">
+      <a href="#" id="toggleMode" style="font-size:13px;color:var(--text-muted);text-decoration:none"></a>
+    </div>
+    <p class="msg" id="lmsg" role="status" style="margin-top:6px;font-size:14px;text-align:center;min-height:20px"></p>
+  </form>
+</section>
 
 <main id="app" hidden>
 <section style="padding-top:8px"><h2 id="co"></h2><p><span class="badge" id="status"></span> <span id="meta" style="color:var(--muted)"></span> <button class="btn ghost" id="bill" style="margin-left:8px;padding:6px 12px">Renew / Add seats</button></p></section>
@@ -35,15 +66,112 @@
 <script>
 'use strict';
 const SUPABASE_ID=window.ENV?.SUPABASE_ID||'fhrgloksasyxutlkilwm';
-const ANON=window.ENV?.SUPABASE_ANON_KEY||'YOUR_SUPABASE_ANON_KEY';
+const ANON=window.ENV?.SUPABASE_ANON_KEY||'sb_publishable_dRk7i1W_-WPj0VXovVu2Ww_ys-4_4Mu';
 const sb=supabase.createClient(`https://${SUPABASE_ID}.supabase.co`,ANON);
 const $=i=>document.getElementById(i);
 const row=(...c)=>{const tr=document.createElement('tr');c.forEach(t=>{const td=document.createElement('td');td.textContent=t;tr.append(td)});return tr};
 
+let isOtpMode = false;
+
+function setMsg(txt, ok) {
+ const el = $('lmsg');
+ el.textContent = txt || '';
+ el.style.color = ok ? 'var(--emerald-primary, #10b981)' : 'var(--rose-primary, #f43f5e)';
+}
+
+function updateAuthUi() {
+ $('pwdGroup').style.display = isOtpMode ? 'none' : 'block';
+ $('loginBtn').textContent = isOtpMode ? 'Email me a link' : 'Sign in';
+ $('toggleMode').textContent = isOtpMode ? 'Or sign in with password instead' : 'Or sign in with email link instead';
+ $('loginDesc').textContent = isOtpMode 
+   ? 'Enter the email you used at checkout. We will send a sign-in link.' 
+   : 'Sign in with the password sent to your email after checkout.';
+ setMsg('', true);
+}
+
+$('googleBtn').onclick = async () => {
+  setMsg('Connecting to Google...', true);
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: location.origin + location.pathname,
+    },
+  });
+  if (error) {
+    setMsg(error.message || 'Could not connect to Google sign in.', false);
+  }
+};
+
+$('toggleMode').onclick = (e) => {
+ e.preventDefault();
+ isOtpMode = !isOtpMode;
+ updateAuthUi();
+};
+
+$('loginForm').onsubmit = async (e) => {
+ e.preventDefault();
+ const email = $('email').value.trim();
+ if (!email) {
+   setMsg('Please enter your email.', false);
+   return;
+ }
+ 
+ $('loginBtn').disabled = true;
+ if (isOtpMode) {
+   setMsg('Sending link...', true);
+   const { error } = await sb.auth.signInWithOtp({
+     email,
+     options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: false }
+   });
+   $('loginBtn').disabled = false;
+   if (error) {
+     setMsg(error.message || 'We could not send a link to that email.', false);
+   } else {
+     setMsg('Check your email for the sign-in link.', true);
+   }
+ } else {
+   const password = $('password').value;
+   if (!password) {
+     $('loginBtn').disabled = false;
+     setMsg('Please enter your password.', false);
+     return;
+   }
+   setMsg('Signing in...', true);
+   const { error } = await sb.auth.signInWithPassword({ email, password });
+   $('loginBtn').disabled = false;
+   if (error) {
+     setMsg(error.message || 'Invalid email or password.', false);
+   } else {
+     setMsg('', true);
+     boot();
+   }
+ }
+};
+
+$('forgotPass').onclick = async (e) => {
+ e.preventDefault();
+ const email = $('email').value.trim();
+ if (!email) {
+   setMsg('Enter your work email first, then click Forgot password.', false);
+   $('email').focus();
+   return;
+ }
+ setMsg('Sending password reset email...', true);
+ const { error } = await sb.auth.resetPasswordForEmail(email, {
+   redirectTo: location.origin + location.pathname
+ });
+ if (error) {
+   setMsg(error.message || 'Could not send reset email.', false);
+ } else {
+   setMsg('Password reset instructions sent to your email.', true);
+ }
+};
+
 async function boot(){
  const{data:{session}}=await sb.auth.getSession();
- $('login').hidden=!!session;$('app').hidden=!session;$('out').hidden=!session;
+ $('login').hidden=!!session;$('app').hidden=!session;
  if(!session)return;
+ try{await sb.rpc('claim_company_by_email');}catch(_){}
  const{data:link}=await sb.from('company_admins').select('companies(name,status,seats,current_period_end)').limit(1).maybeSingle();
  const co=link?.companies;
  if(!co){$('co').textContent='No company is linked to this account yet. If you just paid, wait a minute and refresh.';return}
@@ -60,10 +188,6 @@ async function boot(){
  $('rows').replaceChildren(...ev.map(e=>row(new Date(e.detected_at).toLocaleString(),e.threat_type,e.url||'')));
  $('empty').hidden=ev.length>0;
 }
-$('send').onclick=async()=>{const e=$('email').value.trim();if(!e)return;
- const{error}=await sb.auth.signInWithOtp({email:e,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:false}});
- $('lmsg').style.color=error?'':'var(--ok)';$('lmsg').textContent=error?'We could not send a link to that email.':'Check your email for the sign-in link.'};
-$('out').onclick=async()=>{await sb.auth.signOut();boot()};
 $('rot').onclick=async()=>{
  if($('key').dataset.set&&!confirm('This replaces the current key. Continue?'))return;
  const{data,error}=await sb.rpc('rotate_company_key');

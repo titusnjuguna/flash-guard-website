@@ -4,6 +4,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const PAYSTACK_SECRET = Deno.env.get("PAYSTACK_SECRET_KEY")!;
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const SITE = Deno.env.get("SITE_URL")!; // e.g. https://flashguard.example.com
+const DASHBOARD = Deno.env.get("DASHBOARD_URL") || "https://dashboard.extension.zenlow.co";
 
 const corsHeaders = (origin: string | null) => ({
   "Access-Control-Allow-Origin": origin || SITE || "*",
@@ -45,7 +46,7 @@ Deno.serve(async (req) => {
       email,
       amount: amountInKESSmallestUnit,
       currency: "KES",
-      callback_url: `${SITE || origin || "http://localhost:3000"}/dashboard.html`,
+      callback_url: DASHBOARD,
       metadata: {
         company,
         seats,

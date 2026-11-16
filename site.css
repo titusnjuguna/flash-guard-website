@@ -872,7 +872,7 @@ ul.checklist li svg {
   margin-bottom: 6px;
 }
 
-.input-text, input[type=email], input[type=text], input[type=number] {
+.input-text, input[type=email], input[type=password], input[type=text], input[type=number] {
   width: 100%;
   height: 46px;
   padding: 0 14px;
@@ -885,7 +885,7 @@ ul.checklist li svg {
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.input-text:focus, input[type=email]:focus, input[type=text]:focus, input[type=number]:focus {
+.input-text:focus, input[type=email]:focus, input[type=password]:focus, input[type=text]:focus, input[type=number]:focus {
   border-color: var(--amber-primary);
   box-shadow: 0 0 0 3px var(--amber-glow);
   outline: none;
@@ -1134,3 +1134,52 @@ th {
     display: none;
   }
 }
+
+/* Auth components */
+.btn.google {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line-bright);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14.5px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn.google:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn.google:active {
+  transform: translateY(0);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 18px 0;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-subtle);
+}
+
