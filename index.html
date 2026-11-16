@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlashGuard &mdash; Zero-Knowledge DLP for LLMs &amp; AI Chats</title>
+  <meta name="description" content="Stop company secrets, API keys, card numbers, and PII from leaking into ChatGPT, Claude, and Gemini. Enterprise browser security with central IT visibility.">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+  <!-- Top Sticky Navigation -->
+  <header class="site-header">
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="#" aria-label="FlashGuard Home">
+          <div class="brand-icon">
+            <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true">
+              <path d="M16 3 6 7v8c0 6.2 4.2 11.3 10 14 5.8-2.7 10-7.8 10-14V7L16 3Z" fill="#f59e0b"/>
+              <path d="m17.5 9-5 8h3.5l-1.5 6 5.5-8H16.5l1-6Z" fill="#090d16"/>
+            </svg>
+          </div>
+          <span>FlashGuard</span>
+        </a>
+
+        <div class="nav-links">
+          <a class="l" href="#features">Architecture</a>
+          <a class="l" href="#how">Deployment</a>
+          <a class="l" href="#pricing">Pricing</a>
+          <a class="l" href="#faq">Security FAQ</a>
+          <a class="l" href="dashboard.html">Admin Console</a>
+          <a class="btn primary" href="#pricing">Protect Your Team</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Hero Section -->
+    <section>
+      <div class="hero-grid">
+        <div>
+          <div class="badge-pill">
+            <span class="pulse-dot"></span>
+            <span>Real-Time DLP for Enterprise AI Chats</span>
+          </div>
+
+          <h1>
+            Your developers paste secrets into AI chats.<br>
+            <span class="amber-accent">Stop it at the keyboard.</span>
+          </h1>
+
+          <p class="lead">
+            FlashGuard intercepts API keys, customer card numbers, private certs, and database credentials before they leave the browser. Zero-knowledge client-side inspection with central IT governance.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn primary" href="#pricing">
+              <span>Deploy FlashGuard</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+            <a class="btn ghost" href="#simulator">
+              <span>Try Live Simulator &darr;</span>
+            </a>
+          </div>
+
+          <div class="trust-stats">
+            <div class="stat-item">
+              <b>&lt; 0.5 ms</b>
+              <span>Inspection latency</span>
+            </div>
+            <div class="stat-item">
+              <b>100%</b>
+              <span>Client-side zero-egress</span>
+            </div>
+            <div class="stat-item">
+              <b>50+</b>
+              <span>Detection signatures</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive DLP Live Simulator Widget -->
+        <div id="simulator">
+          <div class="simulator-card">
+            <div class="sim-header">
+              <div class="mac-controls">
+                <span class="mac-btn close"></span>
+                <span class="mac-btn min"></span>
+                <span class="mac-btn max"></span>
+              </div>
+              <div class="sim-url">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                chatgpt.com/c/incident-debug
+              </div>
+              <span class="sim-badge">DLP ACTIVE</span>
+            </div>
+
+            <div class="sim-body">
+              <div class="sim-presets-label">Click to test live detection:</div>
+              <div class="sim-presets">
+                <button class="preset-chip" type="button" onclick="loadSample('stripe')">Stripe Live Key</button>
+                <button class="preset-chip" type="button" onclick="loadSample('aws')">AWS Credentials</button>
+                <button class="preset-chip" type="button" onclick="loadSample('pci')">Customer Credit Card</button>
+                <button class="preset-chip" type="button" onclick="loadSample('clean')">Safe Prompt</button>
+              </div>
+
+              <div class="sim-input-box">
+                <textarea id="simInput" class="sim-textarea" spellcheck="false" placeholder="Type or paste prompt code here to test FlashGuard..."></textarea>
+              </div>
+
+              <!-- Real-time dynamic detection alert -->
+              <div id="simAlert" class="sim-alert">
+                <div class="alert-content">
+                  <span id="alertIcon" class="alert-icon">🛑</span>
+                  <div class="alert-text">
+                    <b id="alertTitle">Stripe Live Secret Key Detected</b>
+                    <span id="alertDesc">Blocked before submission. Text never left this browser window.</span>
+                  </div>
+                </div>
+                <button id="redactBtn" class="sim-action-btn" type="button" onclick="redactSimInput()">Redact Secret</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported AI Ecosystem Bar -->
+    <div class="ecosystem-bar">
+      <div class="ecosystem-label">Enforces Zero-Leakage Policy Across All Major LLMs</div>
+      <div class="ecosystem-tags">
+        <span class="eco-pill">OpenAI ChatGPT</span>
+        <span class="eco-pill">Anthropic Claude</span>
+        <span class="eco-pill">Google Gemini</span>
+        <span class="eco-pill">Microsoft Copilot</span>
+        <span class="eco-pill">Perplexity AI</span>
+        <span class="eco-pill">Cursor &amp; AI IDEs</span>
+        <span class="eco-pill">DeepSeek</span>
+      </div>
+    </div>
+
+    <!-- Architecture & Bento Grid -->
+    <section id="features">
+      <div class="section-header">
+        <h2>Engineered for High-Velocity Teams</h2>
+        <p class="section-desc">
+          Most DLP tools rely on intrusive proxies that break HTTPS sessions or slow down developer workflows. FlashGuard executes at the browser input boundary.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Bento Card 1: Zero Latency Engine (Span 2) -->
+        <div class="bento-card col-2">
+          <div>
+            <div class="bento-icon">⚡</div>
+            <h3>Sub-Millisecond In-Memory Scanning</h3>
+            <p>
+              FlashGuard's regex evaluation engine intercepts paste events and form submission listeners directly in the browser's JavaScript runtime. Prompts are analyzed in under 0.5ms with zero network hops.
+            </p>
+          </div>
+          <div class="bento-preview">
+            <span style="color:#10b981;">&bull; [EventListener: paste]</span> &rarr; SanitizerWorker (0.38ms) &rarr; <span style="color:#f59e0b;">Decision: BLOCK</span>
+          </div>
+        </div>
+
+        <!-- Bento Card 2: Zero-Knowledge Privacy -->
+        <div class="bento-card">
+          <div>
+            <div class="bento-icon">🔒</div>
+            <h3>Zero-Knowledge Architecture</h3>
+            <p>
+              Your prompts, codebases, and conversations NEVER leave the machine. FlashGuard logs only high-level telemetry (e.g. "Stripe API Key on chatgpt.com") to your admin console.
+            </p>
+          </div>
+          <div class="detect-chips">
+            <span class="detect-tag">No Prompts Saved</span>
+            <span class="detect-tag">No MITM Proxy</span>
+          </div>
+        </div>
+
+        <!-- Bento Card 3: 50+ Pattern Signatures -->
+        <div class="bento-card">
+          <div>
+            <div class="bento-icon">🛡️</div>
+            <h3>50+ Built-In Threat Signatures</h3>
+            <p>
+              Pre-configured patterns identify high-entropy API tokens, cloud provider IAM credentials, private cryptographic keys, and sensitive financial identifiers.
+            </p>
+          </div>
+          <div class="detect-chips">
+            <span class="detect-tag">OpenAI &amp; Claude</span>
+            <span class="detect-tag">AWS &amp; GCP Keys</span>
+            <span class="detect-tag">JWT Bearer</span>
+            <span class="detect-tag">RSA PEM</span>
+            <span class="detect-tag">PCI Cards</span>
+          </div>
+        </div>
+
+        <!-- Bento Card 4: Fleet Management (Span 2) -->
+        <div class="bento-card col-2">
+          <div>
+            <div class="bento-icon">🚀</div>
+            <h3>Enterprise Fleet Deployment in Minutes</h3>
+            <p>
+              Roll out FlashGuard silently across 10 to 5,000+ developer workstations using Google Workspace Admin, Microsoft Intune, Jamf, or Group Policy. Company keys are injected automatically via managed browser storage.
+            </p>
+          </div>
+          <div class="bento-preview">
+            Chrome / Edge Extension Policy: { "COMPANY_API_KEY": { "Value": "fg_e92a..." }, "installation_mode": "force_installed" }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works (Deployment Pipeline) -->
+    <section id="how">
+      <div class="section-header">
+        <h2>From Payment to Fleet Protection</h2>
+        <p class="section-desc">No complicated proxy configurations, certificates, or endpoint agents required.</p>
+      </div>
+
+      <div class="steps-pipeline">
+        <div class="step-card">
+          <div class="step-badge">1</div>
+          <h4>Configure Seats</h4>
+          <span>Select your team headcount and purchase term access securely via Paystack. No surprise auto-renewals.</span>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">2</div>
+          <h4>Admin Invite</h4>
+          <span>Receive an authenticated admin invite link sent to your work email. Sign in to your security console.</span>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">3</div>
+          <h4>Push Fleet Policy</h4>
+          <span>Generate your company key and copy the pre-built Intune or Google Admin JSON policy snippet.</span>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">4</div>
+          <h4>Audit Interceptions</h4>
+          <span>Watch intercepted secrets populate your security dashboard and export reports for SOC2 and ISO compliance.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Pricing Calculator -->
+    <section id="pricing">
+      <div class="section-header">
+        <h2>Predictable, Per-Seat Pricing</h2>
+        <p class="section-desc">Transparent pricing with zero hidden fees. One-time payment per term via Paystack in USD / KES.</p>
+      </div>
+
+      <div class="pricing-wrapper">
+        <!-- Main Team Tier Card -->
+        <div class="pricing-card featured">
+          <div class="badge-featured">Most Popular</div>
+
+          <div class="pricing-top">
+            <div>
+              <h3 style="font-size:24px; font-weight:800;">FlashGuard Team</h3>
+              <p style="color:var(--text-secondary); font-size:14px; margin-top:2px;">Full DLP protection for engineering &amp; product teams.</p>
+            </div>
+
+            <!-- Billing Term Switcher -->
+            <div class="term-switch" role="group" aria-label="Billing frequency">
+              <button id="mo" class="term-btn" aria-pressed="true" type="button">Monthly</button>
+              <button id="yr" class="term-btn" aria-pressed="false" type="button">Annual (Save 17%)</button>
+            </div>
+          </div>
+
+          <div class="price-display">
+            <span class="price-number" id="unitPrice">$5</span>
+            <span class="price-sub" id="unitDesc">per seat / month</span>
+          </div>
+
+          <!-- Interactive Seat Calculator -->
+          <div class="seat-calculator">
+            <div class="seat-header">
+              <span class="seat-label">Select Team Seats:</span>
+              <span class="seat-count-display" id="seatBadge">10 Seats</span>
+            </div>
+
+            <input id="seatSlider" class="seat-slider" type="range" min="5" max="250" value="10" step="5" aria-label="Select seat count">
+
+            <div class="seat-pills">
+              <button class="seat-pill" type="button" onclick="updateSeatCount(5)">5</button>
+              <button class="seat-pill active" type="button" onclick="updateSeatCount(10)">10</button>
+              <button class="seat-pill" type="button" onclick="updateSeatCount(25)">25</button>
+              <button class="seat-pill" type="button" onclick="updateSeatCount(50)">50</button>
+              <button class="seat-pill" type="button" onclick="updateSeatCount(100)">100</button>
+              <button class="seat-pill" type="button" onclick="updateSeatCount(250)">250</button>
+            </div>
+          </div>
+
+          <ul class="checklist">
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              All 50+ secret, API key, credential, and PII detectors
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Chrome, Edge, Brave, and Firefox extension builds
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Central security admin console &amp; one-click key rotation
+            </li>
+            <li>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Google Workspace Admin &amp; Microsoft Intune fleet policies
+            </li>
+          </ul>
+
+          <!-- Checkout Details -->
+          <div class="form-field">
+            <label class="form-label" for="companyName">Company Name</label>
+            <input id="companyName" class="input-text" type="text" placeholder="e.g. Acme Corp" required>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="workEmail">Work Email (Admin sign-in invite will be delivered here)</label>
+            <input id="workEmail" class="input-text" type="email" placeholder="admin@acme.com" required>
+          </div>
+
+          <!-- Total Calculation Box -->
+          <div class="order-summary">
+            <div class="order-total">
+              <span style="font-size:15px; font-weight:600; color:var(--text-secondary);">Total Due:</span>
+              <span id="orderUSD">$50.00 / month</span>
+            </div>
+            <div class="order-kes" id="orderKES">Approx. KES 6,500 (billed via Paystack)</div>
+          </div>
+
+          <button id="checkoutBtn" class="btn primary pay-btn" type="button">
+            <span>Proceed to Paystack Checkout &rarr;</span>
+          </button>
+          <div id="checkoutMsg" class="msg-status" role="status"></div>
+
+          <div class="guarantee-strip">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              256-Bit Encrypted
+            </span>
+            <span>&bull;</span>
+            <span>All Cards &amp; M-Pesa</span>
+            <span>&bull;</span>
+            <span>Zero Lock-In</span>
+          </div>
+        </div>
+
+        <!-- Enterprise Tier Card -->
+        <div class="pricing-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h3 style="font-size:24px; font-weight:800; margin-bottom:6px;">Enterprise</h3>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">For organizations requiring custom DLP regex, SAML SSO, and audit exports.</p>
+
+            <ul class="checklist">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                500+ workstations with custom volume discounting
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Custom company-specific regex rules &amp; internal identifiers
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                SIEM log streaming (Splunk, Datadog, AWS S3, Sentinel)
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                SAML 2.0 / Okta / Azure AD SSO provisioning
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Signed DPA, BAA (HIPAA), and Net-30 invoicing
+              </li>
+            </ul>
+          </div>
+
+          <div style="margin-top:32px;">
+            <a class="btn ghost" style="width:100%;" href="mailto:sales@flashguard.com?subject=Enterprise%20Inquiry">Contact Enterprise Sales</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Accordion -->
+    <section id="faq">
+      <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+        <p class="section-desc">Technical answers on cryptography, security guarantees, and deployment.</p>
+      </div>
+
+      <div class="faq-grid">
+        <details class="faq-item">
+          <summary class="faq-q">Does FlashGuard inspect or store the text of employee prompts?</summary>
+          <div class="faq-a">
+            No. FlashGuard operates on a strict zero-knowledge architecture. Detection regex evaluates prompts in volatile client-side browser memory. When a violation is caught, only high-level metadata (e.g. <code>THREAT: STRIPE_SECRET_KEY</code> and domain <code>chatgpt.com</code>) is pushed to your admin audit log. The secret itself and the prompt content never touch any external server.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">How does FlashGuard prevent employees from uninstalling the extension?</summary>
+          <div class="faq-a">
+            When deployed via Google Workspace Admin (for Chrome), Microsoft Intune (for Edge), or Group Policy, the extension is set to <code>force_installed</code>. Under enterprise browser management policies, end-users cannot remove, disable, or toggle the extension in normal or incognito browsing.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">How does Paystack billing work with no recurring subscriptions?</summary>
+          <div class="faq-a">
+            We believe in honest, predictable billing without sneaky auto-debits. You pay once for your chosen billing term (1 month or 1 year) via Paystack. Your company console remains active for the duration. When renewal approaches, your admin can top-up, renew, or adjust seats with one click.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">What happens if a developer needs to share a false-positive token?</summary>
+          <div class="faq-a">
+            FlashGuard provides a one-click "Redact Secret" button that replaces the sensitive token with a sanitized mock placeholder (e.g. <code>[REDACTED_STRIPE_KEY]</code>), allowing the AI assistant to debug the syntax or logic safely without the real production key ever leaving the machine.
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-inner">
+        <div>
+          <strong>FlashGuard</strong> &mdash; Zero-Knowledge Browser Data Loss Prevention. &copy; 2026.
+        </div>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="mailto:info@zenlow.co">Contact Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="config.js"></script>
+  <script>
+    'use strict';
+
+    // 1. Supabase & Paystack Configuration
+    const SUPABASE_ID = window.ENV?.SUPABASE_ID || 'fhrgloksasyxutlkilwm';
+    const ANON = window.ENV?.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+    const KES_EXCHANGE_RATE = 130;
+
+    // 2. Pricing Calculator State
+    let billingInterval = 'month';
+    let currentSeats = 10;
+    const PRICING = { month: 5, year: 50 };
+
+    const $ = id => document.getElementById(id);
+    const usdFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    const kesFormat = new Intl.NumberFormat('en-KE', { maximumFractionDigits: 0 });
+
+    function updateSeatCount(n) {
+      currentSeats = Math.min(5000, Math.max(5, Math.floor(Number(n)) || 5));
+      $('seatSlider').value = currentSeats;
+      
+      // Update active state on seat pill buttons
+      document.querySelectorAll('.seat-pill').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.textContent) === currentSeats);
+      });
+
+      renderPricing();
+    }
+
+    function renderPricing() {
+      const isYearly = billingInterval === 'year';
+      const unit = isYearly ? PRICING.year : PRICING.month;
+      const totalUSD = currentSeats * unit;
+      const totalKES = Math.round(totalUSD * KES_EXCHANGE_RATE);
+
+      $('seatBadge').textContent = `${currentSeats} Seats`;
+      $('unitPrice').textContent = isYearly ? `$${(PRICING.year / 12).toFixed(2)}` : `$${PRICING.month}`;
+      $('unitDesc').textContent = isYearly ? 'per seat / month (billed annually)' : 'per seat / month';
+      $('orderUSD').textContent = `${usdFormat.format(totalUSD)} / ${isYearly ? 'year' : 'month'}`;
+      $('orderKES').textContent = `Approx. KES ${kesFormat.format(totalKES)} (processed securely via Paystack)`;
+
+      $('mo').setAttribute('aria-pressed', !isYearly);
+      $('yr').setAttribute('aria-pressed', isYearly);
+    }
+
+    $('seatSlider').oninput = e => updateSeatCount(e.target.value);
+    $('mo').onclick = () => { billingInterval = 'month'; renderPricing(); };
+    $('yr').onclick = () => { billingInterval = 'year'; renderPricing(); };
+    renderPricing();
+
+    // 3. Interactive Hero Simulator Engine
+    const SAMPLE_PAYLOADS = {
+      stripe: "Debug this payment handler: \nconst stripe = require('stripe')('sk_live_51Msz924Kls9021qpw19z012a9');\nawait stripe.charges.create({ amount: 2000 });",
+      aws: "Here are the S3 credentials to fetch user logs: \nAWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE \nAWS_SECRET_ACCESS_KEY=wJalrXUtnFExxxxx/xxxxNG/bPxRfiCYEXAMPLEKEY",
+      pci: "Customer requested a manual refund to card: 4532 8920 1928 3491 (exp: 08/28, CVV: 891)",
+      clean: "Can you review this Python function and explain how to optimize the binary search loop?"
+    };
+
+    const DETECTION_RULES = [
+      { pattern: /sk_live_[0-9a-zA-Z]{24,}/, name: "Stripe Live Secret Key", placeholder: "[REDACTED_STRIPE_KEY]" },
+      { pattern: /AKIA[0-9A-Z]{16}/, name: "AWS IAM Access Key", placeholder: "[REDACTED_AWS_KEY]" },
+      { pattern: /wJalrXUtnFEMI\/K7MDENG\/bPxRfiCYEXAMPLEKEY/, name: "AWS Secret Access Key", placeholder: "[REDACTED_AWS_SECRET]" },
+      { pattern: /\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})\b/, name: "PCI Credit Card Number", placeholder: "[REDACTED_CARD_NUMBER]" }
+    ];
+
+    function scanSimulatorInput() {
+      const text = $('simInput').value;
+      const alertBox = $('simAlert');
+      const alertTitle = $('alertTitle');
+      const alertDesc = $('alertDesc');
+      const alertIcon = $('alertIcon');
+      const redactBtn = $('redactBtn');
+
+      let matchFound = null;
+      for (const rule of DETECTION_RULES) {
+        if (rule.pattern.test(text)) {
+          matchFound = rule;
+          break;
+        }
+      }
+
+      if (matchFound) {
+        alertBox.className = 'sim-alert';
+        alertIcon.textContent = '🛑';
+        alertTitle.textContent = `${matchFound.name} Intercepted`;
+        alertDesc.textContent = "Submission blocked. Sensitive token intercepted before leaving browser.";
+        redactBtn.style.display = 'inline-block';
+      } else {
+        alertBox.className = 'sim-alert clean';
+        alertIcon.textContent = '✅';
+        alertTitle.textContent = "No Secrets Detected";
+        alertDesc.textContent = "Prompt is sanitized and safe for LLM transmission.";
+        redactBtn.style.display = 'none';
+      }
+    }
+
+    function loadSample(key) {
+      $('simInput').value = SAMPLE_PAYLOADS[key] || '';
+      scanSimulatorInput();
+    }
+
+    function redactSimInput() {
+      let text = $('simInput').value;
+      for (const rule of DETECTION_RULES) {
+        text = text.replace(rule.pattern, rule.placeholder);
+      }
+      $('simInput').value = text;
+      scanSimulatorInput();
+    }
+
+    $('simInput').oninput = scanSimulatorInput;
+    // Load initial sample
+    loadSample('stripe');
+
+    // 4. Paystack Checkout Handler
+    $('checkoutBtn').onclick = async () => {
+      const btn = $('checkoutBtn');
+      const msg = $('checkoutMsg');
+      msg.textContent = '';
+
+      const email = $('workEmail').value.trim();
+      const company = $('companyName').value.trim();
+
+      if (!email || !email.includes('@')) {
+        msg.textContent = 'Please provide a valid work email address.';
+        $('workEmail').focus();
+        return;
+      }
+
+      if (SUPABASE_ID.startsWith('YOUR_')) {
+        msg.textContent = 'Please configure your SUPABASE_ID and ANON key in config.js.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = 'Initializing Paystack Gateway...';
+
+      try {
+        const response = await fetch(`https://${SUPABASE_ID}.supabase.co/functions/v1/billing`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: ANON,
+            Authorization: `Bearer ${ANON}`
+          },
+          body: JSON.stringify({
+            action: 'checkout',
+            email,
+            company,
+            seats: currentSeats,
+            interval: billingInterval
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.url) {
+          throw new Error(data.error || 'Failed to initialize checkout');
+        }
+
+        location.href = data.url;
+      } catch (err) {
+        msg.textContent = err.message || 'Could not start checkout. Please try again.';
+        btn.disabled = false;
+        btn.innerHTML = 'Proceed to Paystack Checkout &rarr;';
+      }
+    };
+  </script>
+</body>
+</html>

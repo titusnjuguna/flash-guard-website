@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlashGuard admin</title><link rel="stylesheet" href="site.css"></head>
+<body><div class="wrap">
+<nav><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M16 3 6 7v8c0 6.2 4.2 11.3 10 14 5.8-2.7 10-7.8 10-14V7L16 3Z" fill="#f59e0b"/><path d="m17.5 9-5 8h3.5l-1.5 6 5.5-8H16.5l1-6Z" fill="#0f172a"/></svg>FlashGuard <span style="font-weight:400;color:var(--muted);font-size:15px;margin-left:4px">admin</span></a><button class="btn ghost" id="out" hidden>Sign out</button></nav>
+
+<section id="login" hidden style="max-width:420px"><h2>Admin sign in</h2>
+<p class="lead" style="font-size:16px">Enter the email you used at checkout. We will send a sign-in link.</p>
+<input id="email" type="email" autocomplete="email" placeholder="you@company.com"><p></p>
+<button class="btn" id="send">Email me a link</button><p class="msg" id="lmsg" role="status"></p></section>
+
+<main id="app" hidden>
+<section style="padding-top:8px"><h2 id="co"></h2><p><span class="badge" id="status"></span> <span id="meta" style="color:var(--muted)"></span> <button class="btn ghost" id="bill" style="margin-left:8px;padding:6px 12px">Renew / Add seats</button></p></section>
+<section style="padding-top:0"><div class="grid">
+<div class="card"><p>Threats stopped (30 days)</p><div class="stat" id="total">0</div></div>
+<div class="card"><p>Most common</p><div class="stat" id="top" style="font-size:22px">None yet</div></div></div></section>
+
+<section style="padding-top:0"><h2>1. Company key</h2>
+<p style="color:var(--muted)">Paste this key into the FlashGuard popup on each device, or push it with your browser policy. A new key replaces the old one, so devices must be updated.</p>
+<button class="btn" id="rot">Generate company key</button><p></p><div class="keybox" id="key" hidden></div></section>
+
+<section style="padding-top:0"><h2>2. Deploy</h2>
+<p style="color:var(--muted)">Force-install FlashGuard and push the company key by policy, so employees never see or type it. Generate a key above and the snippets below fill in.</p>
+<details><summary>Chrome / Edge (Google Admin, Intune, Group Policy)</summary>
+<p style="color:var(--muted)">Apps &amp; extensions &gt; FlashGuard &gt; Policy for extensions. Intune and Group Policy use the same JSON.</p><pre id="polChrome">Generate a key first.</pre></details>
+<details><summary>Firefox (policies.json)</summary><pre id="polFirefox">Generate a key first.</pre></details>
+<p style="color:var(--muted)">Then confirm events appear below.</p></section>
+
+<section style="padding-top:0"><h2>3. Recent events</h2>
+<div style="overflow-x:auto"><table><thead><tr><th>When</th><th>Type</th><th>Page</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p id="empty" style="color:var(--muted)" hidden>No events yet.</p></section></main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+'use strict';
+const SUPABASE_ID=window.ENV?.SUPABASE_ID||'fhrgloksasyxutlkilwm';
+const ANON=window.ENV?.SUPABASE_ANON_KEY||'YOUR_SUPABASE_ANON_KEY';
+const sb=supabase.createClient(`https://${SUPABASE_ID}.supabase.co`,ANON);
+const $=i=>document.getElementById(i);
+const row=(...c)=>{const tr=document.createElement('tr');c.forEach(t=>{const td=document.createElement('td');td.textContent=t;tr.append(td)});return tr};
+
+async function boot(){
+ const{data:{session}}=await sb.auth.getSession();
+ $('login').hidden=!!session;$('app').hidden=!session;$('out').hidden=!session;
+ if(!session)return;
+ const{data:link}=await sb.from('company_admins').select('companies(name,status,seats,current_period_end)').limit(1).maybeSingle();
+ const co=link?.companies;
+ if(!co){$('co').textContent='No company is linked to this account yet. If you just paid, wait a minute and refresh.';return}
+ $('co').textContent=co.name;
+ const isExpired=co.current_period_end&&new Date(co.current_period_end)<new Date();
+ const live=co.status==='active'&&!isExpired;
+ $('status').textContent=isExpired?'Expired':(co.status||'Active');$('status').classList.toggle('off',!live);
+ $('meta').textContent=`${co.seats} seats`+(co.current_period_end?` · valid until ${new Date(co.current_period_end).toLocaleDateString()}`:'');
+ const since=new Date(Date.now()-30*864e5).toISOString();
+ const{data:ev=[]}=await sb.from('security_events').select('threat_type,url,detected_at').gte('detected_at',since).order('detected_at',{ascending:false}).limit(200);
+ $('total').textContent=ev.length;
+ const c={};ev.forEach(e=>c[e.threat_type]=(c[e.threat_type]||0)+1);
+ const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];$('top').textContent=top?`${top[0]} (${top[1]})`:'None yet';
+ $('rows').replaceChildren(...ev.map(e=>row(new Date(e.detected_at).toLocaleString(),e.threat_type,e.url||'')));
+ $('empty').hidden=ev.length>0;
+}
+$('send').onclick=async()=>{const e=$('email').value.trim();if(!e)return;
+ const{error}=await sb.auth.signInWithOtp({email:e,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:false}});
+ $('lmsg').style.color=error?'':'var(--ok)';$('lmsg').textContent=error?'We could not send a link to that email.':'Check your email for the sign-in link.'};
+$('out').onclick=async()=>{await sb.auth.signOut();boot()};
+$('rot').onclick=async()=>{
+ if($('key').dataset.set&&!confirm('This replaces the current key. Continue?'))return;
+ const{data,error}=await sb.rpc('rotate_company_key');
+ $('key').hidden=false;$('key').dataset.set='1';
+ $('key').textContent=error?'Could not generate a key.':data+'   (copy it now; it is shown only once)';
+ if(!error){
+  $('polChrome').textContent=JSON.stringify({COMPANY_API_KEY:{Value:data}},null,2);
+  $('polFirefox').textContent=JSON.stringify({policies:{'3rdparty':{Extensions:{'flashguard@example.com':{COMPANY_API_KEY:data}}},
+   ExtensionSettings:{'flashguard@example.com':{installation_mode:'force_installed',install_url:'https://YOUR-SITE/flashguard.xpi'}}}},null,2)}};
+$('bill').onclick=()=>{location.href='index.html#pricing'};
+sb.auth.onAuthStateChange(()=>boot());boot();
+</script></body></html>
